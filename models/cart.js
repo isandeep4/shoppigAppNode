@@ -39,6 +39,9 @@ module.exports = class Cart {
             }
             const updatedCart = {...JSON.parse(fileContent)};
             const deletedProduct = updatedCart.products.find(p=>p.id===id);
+            if(!deletedProduct){
+                return;
+            }
             const deletedProductQty = deletedProduct.qty;
             updatedCart.totalPrice = updatedCart.totalPrice - deletedProductQty*price;
             updatedCart.products = updatedCart.products.filter(prd => prd.id !== id);

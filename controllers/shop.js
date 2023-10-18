@@ -49,7 +49,6 @@ exports.getCart = (req, res, next) => {
       });
     })
   })
-  
 };
 
 exports.postCartDeleteProduct = (req, res, next) => {
