@@ -44,5 +44,38 @@ class User {
                     })
                 })
     }
+    deleteProductFromCart(selectedProductId){
+        const db = getDb();
+        return db.collection('products').deleteOne({_id: new mongodb.ObjectId(selectedProductId)})
+          .then(result=>{
+            console.log('deleted')
+          })
+          .catch(err=>{
+            console.log(err)
+          })
+    }
+    addOrder(){
+        const db = getDb();
+        return this.getCart().then(products=>{
+            const order = {
+                items: products,
+                user: {
+                    _id: new ObjectId(this._id),
+                    name: this.name,
+                }
+            }
+            return db.collection('orders').insertOne(order)
+        })
+        .then(()=>{
+            this.cart = {items: []};
+            return db.collection('users').updateOne({$set: {cart: {items: []}}})
+        })
+        
+    }
+    getOrders(){
+        const db = getDb();
+        return db.collection('orders').find({'user._id':new ObjectId(this._id)}).toArray()
+
+    }
 }
 module.exports = User;
