@@ -18,7 +18,7 @@ To run this application, you will need Node.js and MongoDB installed on your mac
 
 1. Clone the repository:
    ```sh
-   git clone [repository link]
+   git clone https://github.com/isandeep4/shoppigAppNode/
    ```
 2. Install the dependencies:
    ```sh
