@@ -52,7 +52,12 @@ exports.postLogin = (req, res, next) => {
                         res.redirect("/login");
                     })
         })
-        .catch(err=>console.log(err))    
+        .catch(err=>{
+            //res.redirect('/500')
+            const error = new Error(err);
+            error.httpStatusCide = 500;
+            return next(error);
+          })    
 }
 
 exports.postLogout = (req, res, next) => {
@@ -105,11 +110,21 @@ exports.postSignup = (req, res, next) => {
                             subject: 'Signup succeeded!',
                             html: '<h1>You successfully signed up!</h1>'
                         })
-                        .catch(err=>console.log(err))
+                        .catch(err=>{
+                            //res.redirect('/500')
+                            const error = new Error(err);
+                            error.httpStatusCide = 500;
+                            return next(error);
+                          })
                         
                     })
         })
-        .catch(err=>console.log(err));
+        .catch(err=>{
+            //res.redirect('/500')
+            const error = new Error(err);
+            error.httpStatusCide = 500;
+            return next(error);
+          });
 
 }
 exports.getReset = (req, res, next) => {
@@ -152,9 +167,15 @@ exports.postReset = (req, res, next)=>{
                     <p>You requested a password reset</p>
                     <p>Click this <a href="http://localhost:3000/reset/${token}">link</a> to set a new password</p>
                 `
-            })
+            });
+            res.redirect('/');
         })
-        .catch(err=>console.log(err))
+        .catch(err=>{
+            //res.redirect('/500')
+            const error = new Error(err);
+            error.httpStatusCide = 500;
+            return next(error);
+          })
     })
 }
 exports.getNewPassword = (req, res, next) => {
@@ -179,12 +200,12 @@ exports.getNewPassword = (req, res, next) => {
 }
 exports.postNewPassword = (req, res, next) => {
     const newPassword = req.body.password;
-    const uderId = req.body.userId;
+    const userId = req.body.userId;
     const token = req.body.passwordToken;
     let resetUser;
     User.findOne({
-        resetToken: passwordToken,
-        resetTokenExpiration: {$gt: Date.new()},
+        resetToken: token,
+        resetTokenExpiration: {$gt: Date.now()},
         _id: userId
     })
     .then(user=>{
@@ -200,5 +221,10 @@ exports.postNewPassword = (req, res, next) => {
     .then(result=>{
         res.redirect('/login');
     })
-    .catch(err=>console.log(err))
+    .catch(err=>{
+        //res.redirect('/500')
+        const error = new Error(err);
+        error.httpStatusCide = 500;
+        return next(error);
+      })
 }
