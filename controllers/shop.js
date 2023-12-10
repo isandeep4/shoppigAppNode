@@ -1,3 +1,7 @@
+const fs = require('fs');
+const path = require('path');
+const PDFDocument = require('pdfkit');
+
 const Product = require('../models/product');
 const Order = require('../models/order');
 
@@ -141,6 +145,28 @@ exports.postOrder = (req, res, next) => {
       error.httpStatusCide = 500;
       return next(error);
     });
+}
+
+exports.getInvoice = (req, res, next) => {
+  const orderId = req.params.orderId;
+  Order.findById(orderId)
+        .then(order=>{
+          if(!order){
+            return next(new Error('No order found'));
+          }
+          if(order.user.userId.toString() !== req.user._id.toString() ){
+            return next(new Error('unauthorized'));
+          }
+          const invoiceName = 'invoice-' + orderId + '.pdf';
+          const orderPath = path.join('data', 'invoices', invoiceName);
+          res.setHeader('Content-Type', 'application/pdf');
+          res.setHeader('Content-Disposition', 'attachment; filename="' + invoiceName + '"');
+          const pdfDoc = new PDFDocument();
+          pdfDoc.pipe(fs.createWriteStream(orderPath));
+          pdfDoc.pipe(res);
+          pdfDoc.text("Hello World")
+        })
+        .catch(err=>console.log(err))
 }
 
 // exports.getCheckout = (req, res, next) => {

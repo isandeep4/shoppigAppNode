@@ -11,10 +11,26 @@ exports.getAddProduct = (req, res, next) => {
 };
 
 exports.postAddProduct = (req, res, next) => {
+  console.log('request', req);
   const title = req.body.title;
-  const imageUrl = req.body.imageUrl;
+  const image = req.file;
   const price = req.body.price;
   const description = req.body.description;
+  if(!image){
+    return res.status(422).render('admin/edit-product', {
+      pageTitle: 'Add Product',
+      path: '/admin/add-product',
+      editing: false,
+      hasError: true,
+      product: {
+        title: title,
+        price: price,
+        description: description, 
+      },
+      errorMessage: 'Attached file is not an image',
+    })
+  }
+  const imageUrl = image.path;
   const product = new Product({
     title: title,
     price: price,
@@ -59,7 +75,7 @@ exports.postEditProduct = (req,res,next) => {
   const prodId = req.body.productId;
   const uTitle = req.body.title;
   const uPrice = req.body.price;
-  const uImageUrl = req.body.imageUrl;
+  const uImage = req.file;
   const uDescription = req.body.description;
   Product.findById(prodId).then(product=>{
     if(product.userId.toString() !== req.user._id.toString()){
@@ -68,7 +84,9 @@ exports.postEditProduct = (req,res,next) => {
     product.title = uTitle;
     product.price = uPrice;
     product.description = uDescription;
-    product.imageUrl = uImageUrl;
+    if(uImage){
+      product.imageUrl = uImage.path;
+    } 
     return product.save().then(result=>{
       res.redirect('/admin/products');
     })
@@ -76,7 +94,7 @@ exports.postEditProduct = (req,res,next) => {
     .catch(err=>{
       //res.redirect('/500')
       const error = new Error(err);
-      error.httpStatusCide = 500;
+      error.httpStatusCode = 500;
       return next(error);
     });
 }
